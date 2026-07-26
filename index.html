@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waterfall — distribution modelling for closed-end private funds</title>
+<meta name="description" content="An interactive LP/GP distribution waterfall engine: compounding preferred return, GP catch-up, carried interest, European vs American structures, and per-LP allocation with side letters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;550;650&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<style>
+  :root { --accent:#7fb2f0; --accent-dim:#2f6ba8; --accent-ink:#04121f; --bg:#0d1117; --panel:#161d26; --panel-2:#1c2531; --line:#242e3b; --line-2:#31405166; }
+  .controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
+  .controls .fld { gap:6px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand"><h1>Waterfall</h1><span class="tag">private fund distributions</span></div>
+    <div class="top-spacer"></div>
+    <div class="clockline"><span id="fundName"></span> · as of <span id="asOf"></span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <p class="lede">
+    A distribution waterfall decides, contractually, who gets each dollar a private fund returns —
+    and in what order. This models the full four-tier structure against a real-shaped mid-market
+    buyout book: <code>return of capital → compounding preferred return → GP catch-up → residual
+    carry split</code>. Move the terms and every tier, every LP allocation and both structures
+    recompute. The preferred return is accrued on unreturned capital by date, not approximated,
+    because the pref is path-dependent and the shortcut is wrong by real money.
+  </p>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="panel">
+    <h2>Deal terms</h2>
+    <div class="controls" id="controls"></div>
+  </div>
+
+  <div class="cols" style="margin-top:18px">
+    <div>
+      <div class="panel">
+        <h2>Waterfall <span class="h2spacer"></span><span class="count" id="wfCount"></span></h2>
+        <div id="waterfall"></div>
+      </div>
+      <div class="panel">
+        <h2>Structure comparison</h2>
+        <div class="pad" id="compare"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2>Portfolio</h2>
+        <div id="deals"></div>
+      </div>
+      <div class="panel">
+        <h2>Preferred return accrual</h2>
+        <div class="pad" id="pref"></div>
+      </div>
+      <div class="panel">
+        <h2>LP allocation</h2>
+        <div class="pad" id="lps"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p style="margin:0 0 9px"><strong>How it is built.</strong>
+      <code>waterfall.js</code> holds the arithmetic: an XIRR solved by Newton-Raphson with a
+      bisection fallback (Newton alone diverges on sign-heavy private-fund cashflows), a
+      date-walking preferred-return accrual that retires pref before capital, and the catch-up
+      tier solved algebraically — <code>x = (carry·profit − priorCarry) / (1 − carry)</code> —
+      rather than iterated, so a partial catch-up lands exactly on the target carry percentage.</p>
+    <p style="margin:0">The fund, its eight deals and its limited partners are synthetic. The
+      structures are not: four-tier waterfalls, 8% compounding prefs, 100% catch-ups, 80/20 splits
+      and reduced-carry side letters for anchor LPs are the standard furniture of a closed-end fund.</p>
+  </footer>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
